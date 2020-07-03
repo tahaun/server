@@ -29,3 +29,4 @@ use OCA\UserStatus\AppInfo\Application;
 $app = \OC::$server->query(Application::class);
 $app->registerCapabilities();
 $app->registerEvents();
+$app->registerInitialState();

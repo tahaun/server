@@ -28,8 +28,11 @@ namespace OCA\UserStatus\AppInfo;
 use OCA\UserStatus\Capabilities;
 use OCA\UserStatus\Listener\UserDeletedListener;
 use OCA\UserStatus\Listener\UserLiveStatusListener;
+use OCA\UserStatus\Service\JSDataService;
 use OCP\AppFramework\App;
+use OCP\AppFramework\Http\TemplateResponse;
 use OCP\EventDispatcher\IEventDispatcher;
+use OCP\IInitialStateService;
 use OCP\User\Events\UserDeletedEvent;
 use OCP\User\Events\UserLiveStatusEvent;
 
@@ -73,5 +76,23 @@ class Application extends App {
 
 		$dispatcher->addServiceListener(UserDeletedEvent::class, UserDeletedListener::class);
 		$dispatcher->addServiceListener(UserLiveStatusEvent::class, UserLiveStatusListener::class);
+
+		$dispatcher->addListener(TemplateResponse::EVENT_LOAD_ADDITIONAL_SCRIPTS_LOGGEDIN, static function () {
+			\OC_Util::addScript('user_status', 'user-status-menu');
+			\OC_Util::addStyle('user_status', 'user-status-menu');
+		});
+	}
+
+	public function registerInitialState(): void {
+		$container = $this->getContainer();
+
+		/** @var IInitialStateService $initialState */
+		$initialState = $container->query(IInitialStateService::class);
+
+		$initialState->provideLazyInitialState(self::APP_ID, 'status', static function () use ($container) {
+			/** @var JSDataService $data */
+			$data = $container->query(JSDataService::class);
+			return $data;
+		});
 	}
 }
