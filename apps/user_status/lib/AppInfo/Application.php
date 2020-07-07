@@ -30,6 +30,9 @@ use OCA\UserStatus\Listener\UserDeletedListener;
 use OCA\UserStatus\Listener\UserLiveStatusListener;
 use OCA\UserStatus\Service\JSDataService;
 use OCP\AppFramework\App;
+use OCP\AppFramework\Bootstrap\IBootContext;
+use OCP\AppFramework\Bootstrap\IBootstrap;
+use OCP\AppFramework\Bootstrap\IRegistrationContext;
 use OCP\AppFramework\Http\TemplateResponse;
 use OCP\EventDispatcher\IEventDispatcher;
 use OCP\IInitialStateService;
@@ -41,7 +44,7 @@ use OCP\User\Events\UserLiveStatusEvent;
  *
  * @package OCA\UserStatus\AppInfo
  */
-class Application extends App {
+class Application extends App implements IBootstrap {
 
 	/** @var string */
 	public const APP_ID = 'user_status';
@@ -56,43 +59,35 @@ class Application extends App {
 	}
 
 	/**
-	 * Registers capabilities that will be exposed
-	 * via the OCS API endpoint
+	 * @inheritDoc
 	 */
-	public function registerCapabilities(): void {
-		$this->getContainer()
-			->registerCapability(Capabilities::class);
+	public function register(IRegistrationContext $context): void {
+		// Register OCS Capabilities
+		$context->registerCapability(Capabilities::class);
+
+		// Register Event Listeners
+		$context->registerEventListener(UserDeletedEvent::class, UserDeletedListener::class);
+		$context->registerEventListener(UserLiveStatusEvent::class, UserLiveStatusListener::class);
 	}
 
 	/**
-	 * Registers a listener for the user-delete event
-	 * to automatically delete a user's status on
-	 * account deletion
+	 * @inheritDoc
 	 */
-	public function registerEvents(): void {
-		/** @var IEventDispatcher $dispatcher */
-		$dispatcher = $this->getContainer()
-			->query(IEventDispatcher::class);
+	public function boot(IBootContext $context): void {
+		$appContainer = $context->getAppContainer();
 
-		$dispatcher->addServiceListener(UserDeletedEvent::class, UserDeletedListener::class);
-		$dispatcher->addServiceListener(UserLiveStatusEvent::class, UserLiveStatusListener::class);
+		/** @var IInitialStateService $initialState */
+		$initialState = $appContainer->query(IInitialStateService::class);
+		$initialState->provideLazyInitialState(self::APP_ID, 'status', static function () use ($appContainer) {
+			/** @var JSDataService $data */
+			$data = $appContainer->query(JSDataService::class);
+			return $data;
+		});
 
+		$dispatcher = $appContainer->query(IEventDispatcher::class);
 		$dispatcher->addListener(TemplateResponse::EVENT_LOAD_ADDITIONAL_SCRIPTS_LOGGEDIN, static function () {
 			\OC_Util::addScript('user_status', 'user-status-menu');
 			\OC_Util::addStyle('user_status', 'user-status-menu');
-		});
-	}
-
-	public function registerInitialState(): void {
-		$container = $this->getContainer();
-
-		/** @var IInitialStateService $initialState */
-		$initialState = $container->query(IInitialStateService::class);
-
-		$initialState->provideLazyInitialState(self::APP_ID, 'status', static function () use ($container) {
-			/** @var JSDataService $data */
-			$data = $container->query(JSDataService::class);
-			return $data;
 		});
 	}
 }
