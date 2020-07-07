@@ -638,7 +638,7 @@ var app = new vue__WEBPACK_IMPORTED_MODULE_0__["default"]({
     return h(_App__WEBPACK_IMPORTED_MODULE_2__["default"]);
   },
   store: _store__WEBPACK_IMPORTED_MODULE_3__["default"]
-}).$mount('li[data-id="user_status_menu_item"]');
+}).$mount('li[data-id="user_status-menuitem"]');
 
 
 /***/ }),
@@ -925,6 +925,70 @@ var fetchAllPredefinedStatuses = /*#__PURE__*/function () {
 
 /***/ }),
 
+/***/ "./apps/user_status/src/services/statusOptionsService.js":
+/*!***************************************************************!*\
+  !*** ./apps/user_status/src/services/statusOptionsService.js ***!
+  \***************************************************************/
+/*! exports provided: getAllStatusOptions */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getAllStatusOptions", function() { return getAllStatusOptions; });
+/* harmony import */ var _nextcloud_l10n__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @nextcloud/l10n */ "./node_modules/@nextcloud/l10n/dist/index.js");
+/* harmony import */ var _nextcloud_l10n__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_nextcloud_l10n__WEBPACK_IMPORTED_MODULE_0__);
+/**
+ * @copyright Copyright (c) 2020 Georg Ehrke
+ *
+ * @author Georg Ehrke <oc.list@georgehrke.com>
+ *
+ * @license GNU AGPL version 3 or any later version
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
+/**
+ * Returns a list of all user-definable statuses
+ *
+ * @returns {Object[]}
+ */
+
+var getAllStatusOptions = function getAllStatusOptions() {
+  return [{
+    type: 'online',
+    label: Object(_nextcloud_l10n__WEBPACK_IMPORTED_MODULE_0__["translate"])('user_status', 'Online'),
+    icon: 'icon-user-status-online'
+  }, {
+    type: 'away',
+    label: Object(_nextcloud_l10n__WEBPACK_IMPORTED_MODULE_0__["translate"])('user_status', 'Away'),
+    icon: 'icon-user-status-away'
+  }, {
+    type: 'dnd',
+    label: Object(_nextcloud_l10n__WEBPACK_IMPORTED_MODULE_0__["translate"])('user_status', 'Do not disturb'),
+    icon: 'icon-user-status-dnd'
+  }, {
+    type: 'invisible',
+    label: Object(_nextcloud_l10n__WEBPACK_IMPORTED_MODULE_0__["translate"])('user_status', 'Invisible'),
+    icon: 'icon-user-status-invisible'
+  }];
+};
+
+
+
+/***/ }),
+
 /***/ "./apps/user_status/src/services/statusService.js":
 /*!********************************************************!*\
   !*** ./apps/user_status/src/services/statusService.js ***!
@@ -1130,7 +1194,7 @@ var clearMessage = /*#__PURE__*/function () {
       while (1) {
         switch (_context5.prev = _context5.next) {
           case 0:
-            url = Object(_nextcloud_router__WEBPACK_IMPORTED_MODULE_1__["generateOcsUrl"])('apps/user_status/api/v1', 2) + 'user_status?format=json';
+            url = Object(_nextcloud_router__WEBPACK_IMPORTED_MODULE_1__["generateOcsUrl"])('apps/user_status/api/v1', 2) + 'user_status/message?format=json';
             _context5.next = 3;
             return _nextcloud_axios__WEBPACK_IMPORTED_MODULE_0___default.a.delete(url);
 
@@ -38287,6 +38351,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _nextcloud_vue_dist_Components_ActionButton__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @nextcloud/vue/dist/Components/ActionButton */ "./node_modules/@nextcloud/vue/dist/Components/ActionButton.js");
 /* harmony import */ var _nextcloud_vue_dist_Components_ActionButton__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_nextcloud_vue_dist_Components_ActionButton__WEBPACK_IMPORTED_MODULE_3__);
 /* harmony import */ var vuex__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! vuex */ "./node_modules/vuex/dist/vuex.esm.js");
+/* harmony import */ var _nextcloud_dialogs__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @nextcloud/dialogs */ "./node_modules/@nextcloud/dialogs/dist/index.js");
+/* harmony import */ var _nextcloud_dialogs__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(_nextcloud_dialogs__WEBPACK_IMPORTED_MODULE_5__);
+/* harmony import */ var _services_statusOptionsService__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./services/statusOptionsService */ "./apps/user_status/src/services/statusOptionsService.js");
 function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
 
 function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
@@ -38348,6 +38415,13 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 //
 //
 //
+//
+//
+//
+//
+//
+
+
 
 
 
@@ -38363,15 +38437,19 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
   data: function data() {
     return {
       isModalOpen: false,
-      isSavingStatus: false
+      isSavingStatus: false,
+      statuses: Object(_services_statusOptionsService__WEBPACK_IMPORTED_MODULE_6__["getAllStatusOptions"])()
     };
   },
   computed: _objectSpread(_objectSpread({}, Object(vuex__WEBPACK_IMPORTED_MODULE_4__["mapState"])({
     statusType: function statusType(state) {
       return state.userStatus.status;
     },
+    customIcon: function customIcon(state) {
+      return state.userStatus.icon;
+    },
     customMessage: function customMessage(state) {
-      return state.userStatus.message || t('user_status', 'Set a status');
+      return state.userStatus.message;
     }
   })), {}, {
     /**
@@ -38382,6 +38460,21 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     displayName: function displayName() {
       return Object(_nextcloud_auth__WEBPACK_IMPORTED_MODULE_0__["getCurrentUser"])().displayName;
     },
+
+    /**
+     * The message displayed in the top right corner
+     *
+     * @returns {String}
+     */
+    visibleMessage: function visibleMessage() {
+      return this.customMessage || this.$t('user_status', 'Set a status');
+    },
+
+    /**
+     * The status indicator icon
+     *
+     * @returns {String|null}
+     */
     statusIcon: function statusIcon() {
       if (this.isSavingStatus) {
         return 'icon-loading-small';
@@ -38398,31 +38491,18 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
           return 'icon-user-status-dnd';
 
         case 'invisible':
+        case 'offline':
           return 'icon-user-status-invisible';
       }
 
       return '';
-    },
-    statuses: function statuses() {
-      return [{
-        type: 'online',
-        label: this.$t('user_status', 'Online'),
-        icon: 'icon-user-status-online'
-      }, {
-        type: 'away',
-        label: this.$t('user_status', 'Away'),
-        icon: 'icon-user-status-away'
-      }, {
-        type: 'dnd',
-        label: this.$t('user_status', 'Do not disturb'),
-        icon: 'icon-user-status-dnd'
-      }, {
-        type: 'invisible',
-        label: this.$t('user_status', 'Invisible'),
-        icon: 'icon-user-status-invisible'
-      }];
     }
   }),
+
+  /**
+   * Loads the current user's status from initial state
+   * and stores it in Vuex
+   */
   mounted: function mounted() {
     this.$store.dispatch('loadStatusFromInitialState');
   },
@@ -38462,26 +38542,26 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                 });
 
               case 4:
-                _context.next = 9;
+                _context.next = 10;
                 break;
 
               case 6:
                 _context.prev = 6;
                 _context.t0 = _context["catch"](1);
-                // eslint-disable-next-line
-                console.err(_context.t0);
+                Object(_nextcloud_dialogs__WEBPACK_IMPORTED_MODULE_5__["showError"])(_this.$t('user_status', 'There was an error saving the new status'));
+                console.debug(_context.t0);
 
-              case 9:
-                _context.prev = 9;
+              case 10:
+                _context.prev = 10;
                 _this.isSavingStatus = false;
-                return _context.finish(9);
+                return _context.finish(10);
 
-              case 12:
+              case 13:
               case "end":
                 return _context.stop();
             }
           }
-        }, _callee, null, [[1, 6, 9, 12]]);
+        }, _callee, null, [[1, 6, 10, 13]]);
       }))();
     }
   }
@@ -46742,7 +46822,7 @@ $({ global: true, forced: !USE_NATIVE_URL, sham: !DESCRIPTORS }, {
 var ___CSS_LOADER_API_IMPORT___ = __webpack_require__(/*! ../../../node_modules/css-loader/dist/runtime/api.js */ "./node_modules/css-loader/dist/runtime/api.js");
 exports = ___CSS_LOADER_API_IMPORT___(false);
 // Module
-exports.push([module.i, ".user-status-menu-item__header {\n  display: block;\n  align-items: center;\n  color: var(--color-main-text);\n  padding: 10px 12px 5px 12px;\n  box-sizing: border-box;\n  opacity: 1;\n  white-space: nowrap;\n  width: 100%;\n  text-align: center;\n  max-width: 250px;\n  text-overflow: ellipsis;\n  min-width: 175px;\n}\n.user-status-menu-item__subheader {\n  width: 100% !important;\n}\n.user-status-menu-item__subheader > button {\n    background-color: var(--color-main-background) !important;\n    background-size: 16px !important;\n    border: 0 !important;\n    border-radius: 0 !important;\n    font-weight: normal !important;\n    font-size: 0.875em !important;\n}\n.user-status-menu-item__subheader > button:hover, .user-status-menu-item__subheader > button:focus {\n      box-shadow: inset 4px 0 var(--color-primary-element) !important;\n}\n", ""]);
+exports.push([module.i, "#user-status-menu-item__header {\n  display: block;\n  align-items: center;\n  color: var(--color-main-text);\n  padding: 10px 12px 5px 12px;\n  box-sizing: border-box;\n  opacity: 1;\n  white-space: nowrap;\n  width: 100%;\n  text-align: center;\n  max-width: 250px;\n  text-overflow: ellipsis;\n  min-width: 175px;\n}\n#user-status-menu-item__subheader {\n  width: 100%;\n}\n#user-status-menu-item__subheader > button {\n    background-color: var(--color-main-background);\n    background-size: 16px;\n    border: 0;\n    border-radius: 0;\n    font-weight: normal;\n    font-size: 0.875em;\n}\n#user-status-menu-item__subheader > button:hover, #user-status-menu-item__subheader > button:focus {\n      box-shadow: inset 4px 0 var(--color-primary-element);\n}\n#user-status-menu-item__subheader > button.icon-loading-small::after {\n      left: 21px;\n}\n", ""]);
 // Exports
 module.exports = exports;
 
@@ -54842,19 +54922,19 @@ var render = function() {
   return _c("li", [
     _c(
       "div",
-      { staticClass: "user-status-menu-item" },
+      { attrs: { id: "user-status-menu-item" } },
       [
-        _c("span", { staticClass: "user-status-menu-item__header" }, [
+        _c("span", { attrs: { id: "user-status-menu-item__header" } }, [
           _vm._v(_vm._s(_vm.displayName))
         ]),
         _vm._v(" "),
         _c(
           "Actions",
           {
-            staticClass: "user-status-menu-item__subheader",
             attrs: {
+              id: "user-status-menu-item__subheader",
               "default-icon": _vm.statusIcon,
-              "menu-title": _vm.customMessage
+              "menu-title": _vm.visibleMessage
             }
           },
           [
@@ -65417,4 +65497,4 @@ module.exports = function(module) {
 /***/ })
 
 /******/ });
-//# sourceMappingURL=user-status-menu.js.map?v=aecae7ab7f5ca5569080
+//# sourceMappingURL=user-status-menu.js.map?v=f615e7b78a6ed72d6abd
