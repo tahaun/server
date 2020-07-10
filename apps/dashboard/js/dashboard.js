@@ -6679,7 +6679,9 @@ var applyDrag = function applyDrag(arr, dragResult) {
       callbacks: {},
       panels: panels,
       name: (_getCurrentUser = Object(_nextcloud_auth__WEBPACK_IMPORTED_MODULE_2__["getCurrentUser"])()) === null || _getCurrentUser === void 0 ? void 0 : _getCurrentUser.displayName,
-      layout: Object(_nextcloud_initial_state__WEBPACK_IMPORTED_MODULE_1__["loadState"])('dashboard', 'layout'),
+      layout: Object(_nextcloud_initial_state__WEBPACK_IMPORTED_MODULE_1__["loadState"])('dashboard', 'layout').filter(function (panelId) {
+        return panels[panelId];
+      }),
       modal: false
     };
   },
@@ -6779,7 +6781,7 @@ var applyDrag = function applyDrag(arr, dragResult) {
       for (var app in this.callbacks) {
         var element = this.$refs[app];
 
-        if (this.panels[app].mounted) {
+        if (this.panels[app] && this.panels[app].mounted) {
           continue;
         }
 
