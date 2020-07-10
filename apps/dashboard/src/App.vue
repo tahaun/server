@@ -82,7 +82,7 @@ export default {
 			callbacks: {},
 			panels,
 			name: getCurrentUser()?.displayName,
-			layout: loadState('dashboard', 'layout'),
+			layout: loadState('dashboard', 'layout').filter((panelId) => panels[panelId]),
 			modal: false,
 		}
 	},
@@ -141,7 +141,7 @@ export default {
 		rerenderPanels() {
 			for (const app in this.callbacks) {
 				const element = this.$refs[app]
-				if (this.panels[app].mounted) {
+				if (this.panels[app] && this.panels[app].mounted) {
 					continue
 				}
 				if (element) {
