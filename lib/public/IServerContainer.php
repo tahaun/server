@@ -52,6 +52,7 @@ use OCP\Federation\ICloudFederationFactory;
 use OCP\Federation\ICloudFederationProviderManager;
 use OCP\Log\ILogFactory;
 use OCP\Security\IContentSecurityPolicyManager;
+use Psr\Container\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -62,7 +63,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  * @since 6.0.0
  * @deprecated 20.0.0 use \Psr\Container\ContainerInterface
  */
-interface IServerContainer extends IContainer {
+interface IServerContainer extends ContainerInterface, IContainer {
 
 	/**
 	 * The calendar manager will act as a broker between consumers for calendar information and
