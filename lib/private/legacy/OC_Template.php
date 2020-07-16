@@ -120,6 +120,7 @@ class OC_Template extends \OC\Template\Base {
 				OC_Util::addScript('merged-template-prepend', null, true);
 				OC_Util::addScript('dist/files_client', null, true);
 				OC_Util::addScript('dist/files_fileinfo', null, true);
+				OC_Util::addScript('dist/unified-search', null, true);
 			}
 			OC_Util::addScript('core', 'dist/main', true);
 
