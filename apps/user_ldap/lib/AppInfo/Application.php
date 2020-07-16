@@ -26,6 +26,7 @@
 
 namespace OCA\User_LDAP\AppInfo;
 
+use Closure;
 use OCA\Files_External\Service\BackendService;
 use OCA\User_LDAP\Controller\RenewPasswordController;
 use OCA\User_LDAP\Group_Proxy;
@@ -42,7 +43,14 @@ use OCP\AppFramework\Bootstrap\IBootContext;
 use OCP\AppFramework\Bootstrap\IBootstrap;
 use OCP\AppFramework\Bootstrap\IRegistrationContext;
 use OCP\AppFramework\IAppContainer;
+use OCP\IConfig;
+use OCP\IGroupManager;
 use OCP\IL10N;
+use OCP\IUserSession;
+use OCP\Notification\IManager as INotificationManager;
+use Psr\Container\ContainerInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use function count;
 
 class Application extends App implements IBootstrap {
 	public function __construct() {
@@ -76,35 +84,37 @@ class Application extends App implements IBootstrap {
 	}
 
 	public function boot(IBootContext $context): void {
-		$server = $context->getServerContainer();
-		$config = $server->getConfig();
+		$context->injectFn(function (IConfig $config,
+									 INotificationManager $notificationManager,
+									 IUserSession $userSession,
+									 ContainerInterface $container,
+									 EventDispatcherInterface $dispatcher,
+									 IGroupManager $groupManager) {
+			$helper = new Helper($config);
+			$configPrefixes = $helper->getServerConfigurationPrefixes(true);
+			if (count($configPrefixes) > 0) {
+				$ldapWrapper = new LDAP();
 
-		$helper = new Helper($config);
-		$configPrefixes = $helper->getServerConfigurationPrefixes(true);
-		if (count($configPrefixes) > 0) {
-			$ldapWrapper = new LDAP();
+				$notificationManager->registerNotifierService(Notifier::class);
 
-			$notificationManager = $server->getNotificationManager();
-			$notificationManager->registerNotifierService(Notifier::class);
-			$userSession = $server->getUserSession();
+				$userPluginManager = $container->get(UserPluginManager::class);
+				$groupPluginManager = $container->get(GroupPluginManager::class);
 
-			$userPluginManager = $server->query(UserPluginManager::class);
-			$groupPluginManager = $server->query(GroupPluginManager::class);
+				$userBackend = new User_Proxy(
+					$configPrefixes, $ldapWrapper, $config, $notificationManager, $userSession, $userPluginManager
+				);
+				$groupBackend = new Group_Proxy($configPrefixes, $ldapWrapper, $groupPluginManager);
+				// register user backend
+				\OC_User::useBackend($userBackend);
 
-			$userBackend  = new User_Proxy(
-				$configPrefixes, $ldapWrapper, $config, $notificationManager, $userSession, $userPluginManager
-			);
-			$groupBackend  = new Group_Proxy($configPrefixes, $ldapWrapper, $groupPluginManager);
-			// register user backend
-			\OC_User::useBackend($userBackend);
+				// Hook to allow plugins to work on registered backends
+				$dispatcher->dispatch('OCA\\User_LDAP\\User\\User::postLDAPBackendAdded');
 
-			// Hook to allow plugins to work on registered backends
-			$server->getEventDispatcher()->dispatch('OCA\\User_LDAP\\User\\User::postLDAPBackendAdded');
+				$groupManager->addBackend($groupBackend);
+			}
+		});
 
-			$server->getGroupManager()->addBackend($groupBackend);
-
-			$this->registerBackendDependents($context->getAppContainer());
-		}
+		$context->injectFn(Closure::fromCallable([$this, 'registerBackendDependents']));
 
 		\OCP\Util::connectHook(
 			'\OCA\Files_Sharing\API\Server2Server',
@@ -114,13 +124,13 @@ class Application extends App implements IBootstrap {
 		);
 	}
 
-	public function registerBackendDependents(IAppContainer $appContainer) {
-		$appContainer->getServer()->getEventDispatcher()->addListener(
+	private function registerBackendDependents(ContainerInterface $appContainer, EventDispatcherInterface $dispatcher) {
+		$dispatcher->addListener(
 			'OCA\\Files_External::loadAdditionalBackends',
 			function () use ($appContainer) {
-				$storagesBackendService = $appContainer->query(BackendService::class);
+				$storagesBackendService = $appContainer->get(BackendService::class);
 				$storagesBackendService->registerConfigHandler('home', function () use ($appContainer) {
-					return $appContainer->query(ExtStorageConfigHandler::class);
+					return $appContainer->get(ExtStorageConfigHandler::class);
 				});
 			}
 		);
